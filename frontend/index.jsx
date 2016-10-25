@@ -1,13 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-class App extends React.Component {
-  render() {
-    return (
-      <div>Hello World</div>
-    );
-  }
-}
+// import Map from './components/Map.jsx';
+import App from './components/App';
 
 document.addEventListener('DOMContentLoaded', () => {
   const root = document.getElementById('root');
