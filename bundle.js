@@ -21486,6 +21486,7 @@
 	      };
 	      this.map = new google.maps.Map(map, mapOptions);
 	      this.geocoder = new google.maps.Geocoder();
+	      window.service = new google.maps.places.PlacesService(this.map);
 	    }
 	  }, {
 	    key: 'callback',
@@ -21504,7 +21505,7 @@
 	      var result = this.state.venues[id];
 	      var marker = new google.maps.Marker({
 	        position: { lat: result.lat, lng: result.lng },
-	        map: this.map
+	        map: window.map
 	      });
 	
 	      // marker.addListener('click', function () {
@@ -21618,7 +21619,7 @@
 	        _react2.default.createElement(
 	          'section',
 	          { className: 'content-left' },
-	          _react2.default.createElement(_SearchBar2.default, null)
+	          _react2.default.createElement(_SearchBar2.default, { location: this.state.location })
 	        ),
 	        _react2.default.createElement(
 	          'section',
@@ -23350,6 +23351,12 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _ResultActions = __webpack_require__(197);
+	
+	var _ResultStore = __webpack_require__(195);
+	
+	var _ResultStore2 = _interopRequireDefault(_ResultStore);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -23367,39 +23374,54 @@
 	    var _this = _possibleConstructorReturn(this, (SearchBar.__proto__ || Object.getPrototypeOf(SearchBar)).call(this, props));
 	
 	    _this.handleInputChange = _this.handleInputChange.bind(_this);
+	    _this.handleStoreChange = _this.handleStoreChange.bind(_this);
+	    _this.updateResults = _this.updateResults.bind(_this);
 	    _this.state = {
 	      query: '',
-	      matches: [],
-	      focusedIdx: 0
+	      results: {}
 	    };
 	    return _this;
 	  }
 	
 	  _createClass(SearchBar, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this.listener = _ResultStore2.default.addListener(this.handleStoreChange);
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      this.listener.remove();
+	    }
+	  }, {
+	    key: 'handleStoreChange',
+	    value: function handleStoreChange() {
+	      this.setState({ results: _ResultStore2.default.all() });
+	    }
+	  }, {
 	    key: 'handleInputChange',
 	    value: function handleInputChange(e) {
 	      this.setState({
-	        query: e.target.value,
-	        focusedIdx: 0
-	      });
+	        query: e.target.value
+	      }, this.updateResults);
+	      // window.service.textSearch({ query: this.state.query }, addResults);
 	    }
+	  }, {
+	    key: 'updateResults',
+	    value: function updateResults() {
+	      var loc = new google.maps.LatLng(this.props.location.lat, this.props.location.lng);
+	      var request = {
+	        query: this.state.query,
+	        location: loc,
+	        radius: '500'
+	      };
 	
-	    //  handleKeyDown(e) {
-	    //   if (e.keyCode === 13 || e.keyCode === 39) { //enter or right arrow
-	    //     this.handleClick(this.state.matches[this.state.focusedIdx]);
-	    //   } else if (e.keyCode === 38) {
-	    //     if (this.state.focusedIdx > 0) { //up arrow
-	    //       let focusedIdx = this.state.focusedIdx - 1;
-	    //       this.setState({ focusedIdx: focusedIdx });
-	    //     }
-	    //   } else if (e.keyCode === 40) { //down arrow
-	    //     if (this.state.focusedIdx < this.state.matches.length - 1) {
-	    //       let focusedIdx = this.state.focusedIdx + 1;
-	    //       this.setState({ focusedIdx: focusedIdx })
-	    //     }
-	    //   }
-	    // }
-	
+	      if (this.state.query !== '') {
+	        window.service.textSearch(request, _ResultActions.addResults);
+	      } else {
+	        this.setState({ results: {} });
+	      }
+	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
@@ -23410,10 +23432,12 @@
 	          'div',
 	          null,
 	          _react2.default.createElement('i', { className: 'fa fa-search', 'aria-hidden': 'true' }),
-	          _react2.default.createElement('input', { type: 'text',
+	          _react2.default.createElement('input', {
+	            type: 'text',
 	            onInput: this.handleInputChange,
 	            placeholder: 'Search Places',
-	            value: this.state.query })
+	            value: this.state.query
+	          })
 	        )
 	      );
 	    }
@@ -23423,6 +23447,99 @@
 	}(_react2.default.Component);
 	
 	exports.default = SearchBar;
+
+/***/ },
+/* 195 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _utils = __webpack_require__(175);
+	
+	var _Dispatcher = __webpack_require__(188);
+	
+	var _Dispatcher2 = _interopRequireDefault(_Dispatcher);
+	
+	var _ResultConstants = __webpack_require__(196);
+	
+	var _ResultConstants2 = _interopRequireDefault(_ResultConstants);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var ResultStore = new _utils.Store(_Dispatcher2.default);
+	
+	var _results = {};
+	
+	function setResults(results) {
+	  _results = results;
+	  ResultStore.__emitChange();
+	}
+	
+	ResultStore.all = function () {
+	  return _results;
+	};
+	
+	ResultStore.__onDispatch = function (payload) {
+	  switch (payload.actionType) {
+	    case _ResultConstants2.default.RESULTS_RECEIVED:
+	      setResults(payload.results);
+	      break;
+	    default:
+	      break;
+	  }
+	};
+	
+	exports.default = ResultStore;
+
+/***/ },
+/* 196 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var ResultConstants = {
+	  RESULTS_RECEIVED: 'RESULTS_RECEIVED'
+	};
+	
+	exports.default = ResultConstants;
+
+/***/ },
+/* 197 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.addResults = undefined;
+	
+	var _Dispatcher = __webpack_require__(188);
+	
+	var _Dispatcher2 = _interopRequireDefault(_Dispatcher);
+	
+	var _ResultConstants = __webpack_require__(196);
+	
+	var _ResultConstants2 = _interopRequireDefault(_ResultConstants);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function addResults(results) {
+	  console.log(results);
+	  _Dispatcher2.default.dispatch({
+	    actionType: _ResultConstants2.default.RESULTS_RECEIVED,
+	    results: results
+	  });
+	}
+	
+	exports.addResults = addResults;
 
 /***/ }
 /******/ ]);

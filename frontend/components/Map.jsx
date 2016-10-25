@@ -17,6 +17,7 @@ class Map extends React.Component {
     };
     this.map = new google.maps.Map(map, mapOptions);
     this.geocoder = new google.maps.Geocoder();
+    window.service = new google.maps.places.PlacesService(this.map);
   }
 
   callback(results, status) {
@@ -33,7 +34,7 @@ class Map extends React.Component {
     const result = this.state.venues[id];
     const marker = new google.maps.Marker({
       position: { lat: result.lat, lng: result.lng },
-      map: this.map
+      map: window.map
     });
 
     // marker.addListener('click', function () {

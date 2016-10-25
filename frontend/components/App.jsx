@@ -35,7 +35,7 @@ class App extends React.Component {
     return (
       <div className="content-main">
         <section className="content-left">
-          <SearchBar />
+          <SearchBar location={this.state.location} />
         </section>
         <section className="content-right">
           {this.content()}

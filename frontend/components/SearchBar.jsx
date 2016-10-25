@@ -1,48 +1,64 @@
 import React from 'react';
+import { addResults } from '../actions/ResultActions';
+import ResultStore from '../stores/ResultStore';
 
 class SearchBar extends React.Component {
   constructor(props) {
     super(props);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleStoreChange = this.handleStoreChange.bind(this);
+    this.updateResults = this.updateResults.bind(this);
     this.state = {
       query: '',
-      matches: [],
-      focusedIdx: 0,
+      results: {},
     };
+  }
+
+  componentDidMount() {
+    this.listener = ResultStore.addListener(this.handleStoreChange);
+  }
+
+  componentWillUnmount() {
+    this.listener.remove();
+  }
+
+  handleStoreChange() {
+    this.setState({ results: ResultStore.all() });
   }
 
   handleInputChange(e) {
     this.setState({
       query: e.target.value,
-      focusedIdx: 0,
-    });
+    }, this.updateResults);
+    // window.service.textSearch({ query: this.state.query }, addResults);
   }
 
- //  handleKeyDown(e) {
- //   if (e.keyCode === 13 || e.keyCode === 39) { //enter or right arrow
- //     this.handleClick(this.state.matches[this.state.focusedIdx]);
- //   } else if (e.keyCode === 38) {
- //     if (this.state.focusedIdx > 0) { //up arrow
- //       let focusedIdx = this.state.focusedIdx - 1;
- //       this.setState({ focusedIdx: focusedIdx });
- //     }
- //   } else if (e.keyCode === 40) { //down arrow
- //     if (this.state.focusedIdx < this.state.matches.length - 1) {
- //       let focusedIdx = this.state.focusedIdx + 1;
- //       this.setState({ focusedIdx: focusedIdx })
- //     }
- //   }
- // }
+  updateResults() {
+    const loc = new google.maps.LatLng(this.props.location.lat, this.props.location.lng);
+    const request = {
+      query: this.state.query,
+      location: loc,
+      radius: '500',
+    };
+
+    if (this.state.query !== '') {
+      window.service.textSearch(request, addResults);
+    } else {
+      this.setState({ results: {} });
+    }
+  }
 
   render() {
     return (
       <aside>
         <div>
-          <i className="fa fa-search" aria-hidden="true"></i>
-          <input type="text"
-                 onInput={this.handleInputChange}
-                 placeholder="Search Places"
-                 value={this.state.query}/>
+          <i className="fa fa-search" aria-hidden="true" />
+          <input
+            type="text"
+            onInput={this.handleInputChange}
+            placeholder="Search Places"
+            value={this.state.query}
+          />
         </div>
       </aside>
     );
