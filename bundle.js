@@ -21463,11 +21463,6 @@
 	
 	// import MapStore from '../stores/MapStore';
 	
-	// const mapOptions = {
-	//   center: {lat: 37.773972, lng: -122.431297}, //San Francisco
-	//   zoom: 13
-	// };
-	
 	var Map = function (_React$Component) {
 	  _inherits(Map, _React$Component);
 	
@@ -21555,6 +21550,10 @@
 	
 	var _Map2 = _interopRequireDefault(_Map);
 	
+	var _SearchBar = __webpack_require__(194);
+	
+	var _SearchBar2 = _interopRequireDefault(_SearchBar);
+	
 	var _MapStore = __webpack_require__(174);
 	
 	var _MapStore2 = _interopRequireDefault(_MapStore);
@@ -21577,6 +21576,7 @@
 	
 	    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 	
+	    _this.onLocationChange = _this.onLocationChange.bind(_this);
 	    _this.state = { location: { lat: 0, lng: 0 } };
 	    return _this;
 	  }
@@ -21584,7 +21584,7 @@
 	  _createClass(App, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      this.listener = _MapStore2.default.addListener(this.handleLocationChange);
+	      this.listener = _MapStore2.default.addListener(this.onLocationChange);
 	      (0, _MapActions.fetchLocation)();
 	    }
 	  }, {
@@ -21593,8 +21593,8 @@
 	      this.listener.remove();
 	    }
 	  }, {
-	    key: 'handleLocationChange',
-	    value: function handleLocationChange() {
+	    key: 'onLocationChange',
+	    value: function onLocationChange() {
 	      this.setState({ location: _MapStore2.default.location() });
 	    }
 	  }, {
@@ -21603,20 +21603,28 @@
 	      if (_MapStore2.default.hasLocation()) {
 	        return _react2.default.createElement(_Map2.default, { location: this.state.location });
 	      }
-	      return 'Searching Location....';
+	      return _react2.default.createElement(
+	        'h3',
+	        null,
+	        'Searching location...'
+	      );
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'main' },
+	        { className: 'content-main' },
 	        _react2.default.createElement(
-	          'h1',
-	          null,
-	          'Places'
+	          'section',
+	          { className: 'content-left' },
+	          _react2.default.createElement(_SearchBar2.default, null)
 	        ),
-	        this.content()
+	        _react2.default.createElement(
+	          'section',
+	          { className: 'content-right' },
+	          this.content()
+	        )
 	      );
 	    }
 	  }]);
@@ -23325,6 +23333,96 @@
 	}
 	
 	exports.default = getLocation;
+
+/***/ },
+/* 194 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var SearchBar = function (_React$Component) {
+	  _inherits(SearchBar, _React$Component);
+	
+	  function SearchBar(props) {
+	    _classCallCheck(this, SearchBar);
+	
+	    var _this = _possibleConstructorReturn(this, (SearchBar.__proto__ || Object.getPrototypeOf(SearchBar)).call(this, props));
+	
+	    _this.handleInputChange = _this.handleInputChange.bind(_this);
+	    _this.state = {
+	      query: '',
+	      matches: [],
+	      focusedIdx: 0
+	    };
+	    return _this;
+	  }
+	
+	  _createClass(SearchBar, [{
+	    key: 'handleInputChange',
+	    value: function handleInputChange(e) {
+	      this.setState({
+	        query: e.target.value,
+	        focusedIdx: 0
+	      });
+	    }
+	
+	    //  handleKeyDown(e) {
+	    //   if (e.keyCode === 13 || e.keyCode === 39) { //enter or right arrow
+	    //     this.handleClick(this.state.matches[this.state.focusedIdx]);
+	    //   } else if (e.keyCode === 38) {
+	    //     if (this.state.focusedIdx > 0) { //up arrow
+	    //       let focusedIdx = this.state.focusedIdx - 1;
+	    //       this.setState({ focusedIdx: focusedIdx });
+	    //     }
+	    //   } else if (e.keyCode === 40) { //down arrow
+	    //     if (this.state.focusedIdx < this.state.matches.length - 1) {
+	    //       let focusedIdx = this.state.focusedIdx + 1;
+	    //       this.setState({ focusedIdx: focusedIdx })
+	    //     }
+	    //   }
+	    // }
+	
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'aside',
+	        null,
+	        _react2.default.createElement(
+	          'div',
+	          null,
+	          _react2.default.createElement('i', { className: 'fa fa-search', 'aria-hidden': 'true' }),
+	          _react2.default.createElement('input', { type: 'text',
+	            onInput: this.handleInputChange,
+	            placeholder: 'Search Places',
+	            value: this.state.query })
+	        )
+	      );
+	    }
+	  }]);
+	
+	  return SearchBar;
+	}(_react2.default.Component);
+	
+	exports.default = SearchBar;
 
 /***/ }
 /******/ ]);

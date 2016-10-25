@@ -2,11 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 // import MapStore from '../stores/MapStore';
 
-// const mapOptions = {
-//   center: {lat: 37.773972, lng: -122.431297}, //San Francisco
-//   zoom: 13
-// };
-
 class Map extends React.Component {
   constructor(props) {
     super(props);

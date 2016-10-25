@@ -1,16 +1,18 @@
 import React from 'react';
 import Map from './Map';
+import SearchBar from './SearchBar';
 import MapStore from '../stores/MapStore';
 import { fetchLocation } from '../actions/MapActions';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
+    this.onLocationChange = this.onLocationChange.bind(this);
     this.state = { location: { lat: 0, lng: 0 } };
   }
 
   componentDidMount() {
-    this.listener = MapStore.addListener(this.handleLocationChange);
+    this.listener = MapStore.addListener(this.onLocationChange);
     fetchLocation();
   }
 
@@ -18,7 +20,7 @@ class App extends React.Component {
     this.listener.remove();
   }
 
-  handleLocationChange() {
+  onLocationChange() {
     this.setState({ location: MapStore.location() });
   }
 
@@ -26,16 +28,20 @@ class App extends React.Component {
     if (MapStore.hasLocation()) {
       return <Map location={this.state.location} />;
     }
-    return 'Searching Location....';
+    return <h3>Searching location...</h3>;
   }
 
   render() {
     return (
-      <div className="main">
-        <h1>Places</h1>
-        {this.content()}
+      <div className="content-main">
+        <section className="content-left">
+          <SearchBar />
+        </section>
+        <section className="content-right">
+          {this.content()}
+        </section>
       </div>
-    )
+    );
   }
 }
 
