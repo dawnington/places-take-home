@@ -1,57 +1,80 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-// import MapStore from '../stores/MapStore';
+import PlaceStore from '../stores/PlaceStore';
 
 class Map extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { places: {} };
+    this.handleStoreChange = this.handleStoreChange.bind(this);
+    this.state = { places: [] };
   }
 
   componentDidMount() {
+    this.listener = PlaceStore.addListener(this.handleStoreChange);
     this.markers = [];
     const map = document.getElementById('map');
     const mapOptions = {
       center: { lat: this.props.location.lat, lng: this.props.location.lng },
-      zoom: 15,
+      zoom: 13,
     };
     this.map = new google.maps.Map(map, mapOptions);
     this.geocoder = new google.maps.Geocoder();
     window.service = new google.maps.places.PlacesService(this.map);
   }
 
-  callback(results, status) {
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-      for (var i = 0; i < results.length; i++) {
-        var place = results[i];
-        console.log(results[i]);
-      }
+  componentWillUnmount() {
+    this.listener.remove();
+  }
+
+  handleStoreChange() {
+    this.setState({ places: PlaceStore.all() });
+  }
+
+  resetMarkers() {
+    this.clearMarkers();
+    let labelIndex = 0;
+    const places = this.state.places;
+    for (let place of places) {
+      this.createMarker(place, labelIndex++);
     }
   }
 
-  createMarker(id) {
-    let self = this;
-    const result = this.state.venues[id];
+  clearMarkers() {
+    this.markers = this.markers || [];
+    this.markers.forEach(marker =>
+      marker.setMap(null)
+    );
+    this.markers = [];
+  }
+
+  createMarker(place, labelIdx) {
+    const self = this;
+    const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
     const marker = new google.maps.Marker({
-      position: { lat: result.lat, lng: result.lng },
-      map: window.map
+      position: { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() },
+      label: labels[labelIdx % labels.length],
+      map: this.map,
     });
 
-    // marker.addListener('click', function () {
-    //   if (self.currMarker) {
-    //     self.currMarker.infowindow.close();
-    //   }
-    //   marker.infowindow.open(this.map, marker);
-    //   self.currMarker = marker;
-    //   self.handleMarkerClick(id);
-    // });
+    marker.infowindow = new google.maps.InfoWindow({
+      content: `<h4>${place.name}</h4>`,
+    });
+
+    marker.addListener('click', function () {
+      if (self.currMarker) {
+        self.currMarker.infowindow.close();
+      }
+      marker.infowindow.open(this.map, marker);
+      self.currMarker = marker;
+    });
 
     this.markers.push(marker);
   }
 
   render() {
+    this.resetMarkers();
     return (
-      <div id="map"></div>
+      <div id="map" />
     );
   }
 

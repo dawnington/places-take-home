@@ -1,10 +1,9 @@
 import Dispatcher from '../dispatcher/Dispatcher';
-import ResultConstants from '../constants/ResultConstants';
+import PlaceConstants from '../constants/PlaceConstants';
 
 function addResults(results) {
-  console.log(results);
   Dispatcher.dispatch({
-    actionType: ResultConstants.RESULTS_RECEIVED,
+    actionType: PlaceConstants.PLACES_RECEIVED,
     results,
   });
 }

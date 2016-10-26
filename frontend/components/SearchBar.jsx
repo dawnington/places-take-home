@@ -1,36 +1,34 @@
 import React from 'react';
+import hashHistory from 'react-router/lib/hashHistory';
 import { addResults } from '../actions/ResultActions';
-import ResultStore from '../stores/ResultStore';
 
 class SearchBar extends React.Component {
   constructor(props) {
     super(props);
     this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleStoreChange = this.handleStoreChange.bind(this);
     this.updateResults = this.updateResults.bind(this);
-    this.state = {
-      query: '',
-      results: {},
-    };
+    this.state = { query: '' };
   }
 
   componentDidMount() {
-    this.listener = ResultStore.addListener(this.handleStoreChange);
-  }
+    const input = document.getElementById('searchBar');
 
-  componentWillUnmount() {
-    this.listener.remove();
-  }
+    const lat = this.props.location.lat;
+    const lng = this.props.location.lng;
 
-  handleStoreChange() {
-    this.setState({ results: ResultStore.all() });
+    const bounds = new google.maps.LatLngBounds(
+      new google.maps.LatLng(lat - .01, lng - .01),
+      new google.maps.LatLng(lat + .01, lng + .01)
+    );
+
+    const searchBox = new google.maps.places.SearchBox(input, { bounds });
   }
 
   handleInputChange(e) {
     this.setState({
       query: e.target.value,
     }, this.updateResults);
-    // window.service.textSearch({ query: this.state.query }, addResults);
+    hashHistory.push('/');
   }
 
   updateResults() {
@@ -38,22 +36,21 @@ class SearchBar extends React.Component {
     const request = {
       query: this.state.query,
       location: loc,
-      radius: '500',
+      radius: '150',
     };
 
     if (this.state.query !== '') {
       window.service.textSearch(request, addResults);
-    } else {
-      this.setState({ results: {} });
     }
   }
 
   render() {
     return (
       <aside>
-        <div>
+        <div className="search">
           <i className="fa fa-search" aria-hidden="true" />
           <input
+            id="searchBar"
             type="text"
             onInput={this.handleInputChange}
             placeholder="Search Places"

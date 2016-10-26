@@ -57,6 +57,11 @@ main {
   margin: 25px;
 }
 
+.detail {
+  width: 20%;
+  margin: 25px;
+}
+
 .content-right {
   width: 80%;
 }
@@ -72,6 +77,15 @@ ul {
 
 input[type=text] {
   padding: 10px;
+}
+
+.search {
+  display: flex;
+  align-items: baseline;
+}
+
+#searchBar {
+  flex: 2;
 }
 
 .search-results {
@@ -92,9 +106,19 @@ input[type=text] {
   background: #f2f2f2;
 }
 
+.index {
+  height: 100%;
+  overflow: scroll;
+}
+
+.index-detail {
+  cursor: pointer;
+}
+
 .fa {
   color: #37dfe8;
 }
 
 .focused {
   background: #f2f2f2;
+}

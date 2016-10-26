@@ -1,6 +1,7 @@
 import React from 'react';
 import Map from './Map';
 import SearchBar from './SearchBar';
+import PlaceIndex from './PlaceIndex';
 import MapStore from '../stores/MapStore';
 import { fetchLocation } from '../actions/MapActions';
 
@@ -36,7 +37,9 @@ class App extends React.Component {
       <div className="content-main">
         <section className="content-left">
           <SearchBar location={this.state.location} />
+          <PlaceIndex />
         </section>
+        {this.props.children}
         <section className="content-right">
           {this.content()}
         </section>
