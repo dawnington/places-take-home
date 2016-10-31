@@ -46,59 +46,19 @@
 
 	'use strict';
 	
-	var _react = __webpack_require__(1);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
 	var _reactDom = __webpack_require__(34);
 	
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 	
-	var _hashHistory = __webpack_require__(200);
-	
-	var _hashHistory2 = _interopRequireDefault(_hashHistory);
-	
-	var _Route = __webpack_require__(221);
-	
-	var _Route2 = _interopRequireDefault(_Route);
-	
-	var _Router = __webpack_require__(224);
+	var _Router = __webpack_require__(263);
 	
 	var _Router2 = _interopRequireDefault(_Router);
 	
-	var _App = __webpack_require__(173);
-	
-	var _App2 = _interopRequireDefault(_App);
-	
-	var _PlaceDetail = __webpack_require__(259);
-	
-	var _PlaceDetail2 = _interopRequireDefault(_PlaceDetail);
-	
-	var _PlaceStore = __webpack_require__(261);
-	
-	var _PlaceStore2 = _interopRequireDefault(_PlaceStore);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function ensureContent(nextState, replace) {
-	  if (_PlaceStore2.default.all().length === 0) {
-	    replace('/');
-	  }
-	}
-	
-	var routes = _react2.default.createElement(
-	  _Router2.default,
-	  { history: _hashHistory2.default },
-	  _react2.default.createElement(
-	    _Route2.default,
-	    { path: '/', component: _App2.default },
-	    _react2.default.createElement(_Route2.default, { path: 'results/:id', component: _PlaceDetail2.default, onEnter: ensureContent })
-	  )
-	);
 	
 	document.addEventListener('DOMContentLoaded', function () {
 	  var root = document.getElementById('root');
-	  _reactDom2.default.render(routes, root);
+	  _reactDom2.default.render(_Router2.default, root);
 	});
 
 /***/ },
@@ -21562,11 +21522,10 @@
 	        center: { lat: location.lat, lng: location.lng },
 	        zoom: 13
 	      };
-	      var map = new google.maps.Map(mapEl, mapOptions);
-	      this.map = map;
+	      this.map = new google.maps.Map(mapEl, mapOptions);
 	      this.geocoder = new google.maps.Geocoder();
 	
-	      window.service = new google.maps.places.PlacesService(map);
+	      window.service = new google.maps.places.PlacesService(this.map);
 	    }
 	  }, {
 	    key: 'addLocationWindow',
@@ -21580,6 +21539,9 @@
 	      var infoWindow = new google.maps.InfoWindow({ map: this.map });
 	      infoWindow.setPosition(pos);
 	      infoWindow.setContent('Location found.');
+	      setTimeout(function () {
+	        infoWindow.close();
+	      }, 3000);
 	    }
 	  }, {
 	    key: 'resetMarkers',
@@ -21624,7 +21586,6 @@
 	  }, {
 	    key: 'createMarker',
 	    value: function createMarker(place, labelIdx) {
-	      var self = this;
 	      var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 	
 	      var marker = new google.maps.Marker({
@@ -21706,7 +21667,7 @@
 	    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 	
 	    _this.onLocationChange = _this.onLocationChange.bind(_this);
-	    _this.state = { location: { lat: 0, lng: 0 } };
+	    _this.state = { location: { lat: 37.786567, lng: -122.405303 } };
 	    return _this;
 	  }
 	
@@ -44604,6 +44565,64 @@
 	};
 	
 	exports.default = PlaceConstants;
+
+/***/ },
+/* 263 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _hashHistory = __webpack_require__(200);
+	
+	var _hashHistory2 = _interopRequireDefault(_hashHistory);
+	
+	var _Route = __webpack_require__(221);
+	
+	var _Route2 = _interopRequireDefault(_Route);
+	
+	var _Router = __webpack_require__(224);
+	
+	var _Router2 = _interopRequireDefault(_Router);
+	
+	var _App = __webpack_require__(173);
+	
+	var _App2 = _interopRequireDefault(_App);
+	
+	var _PlaceDetail = __webpack_require__(259);
+	
+	var _PlaceDetail2 = _interopRequireDefault(_PlaceDetail);
+	
+	var _PlaceStore = __webpack_require__(261);
+	
+	var _PlaceStore2 = _interopRequireDefault(_PlaceStore);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function ensureContent(nextState, replace) {
+	  if (_PlaceStore2.default.all().length === 0) {
+	    replace('/');
+	  }
+	}
+	
+	var routes = _react2.default.createElement(
+	  _Router2.default,
+	  { history: _hashHistory2.default },
+	  _react2.default.createElement(
+	    _Route2.default,
+	    { path: '/', component: _App2.default },
+	    _react2.default.createElement(_Route2.default, { path: 'results/:id', component: _PlaceDetail2.default, onEnter: ensureContent })
+	  )
+	);
+	
+	exports.default = routes;
 
 /***/ }
 /******/ ]);

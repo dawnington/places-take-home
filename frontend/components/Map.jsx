@@ -48,11 +48,10 @@ class Map extends React.Component {
       center: { lat: location.lat, lng: location.lng },
       zoom: 13,
     };
-    var map = new google.maps.Map(mapEl, mapOptions);
-    this.map = map;
+    this.map = new google.maps.Map(mapEl, mapOptions);
     this.geocoder = new google.maps.Geocoder();
 
-    window.service = new google.maps.places.PlacesService(map);
+    window.service = new google.maps.places.PlacesService(this.map);
   }
 
   addLocationWindow() {
@@ -65,6 +64,9 @@ class Map extends React.Component {
     const infoWindow = new google.maps.InfoWindow({ map: this.map });
     infoWindow.setPosition(pos);
     infoWindow.setContent('Location found.');
+    setTimeout(() => {
+      infoWindow.close();
+    }, 3000);
   }
 
   resetMarkers() {
@@ -85,7 +87,6 @@ class Map extends React.Component {
   }
 
   createMarker(place, labelIdx) {
-    const self = this;
     const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
     const marker = new google.maps.Marker({
@@ -98,7 +99,7 @@ class Map extends React.Component {
       content: `<h4>${place.name}</h4>`,
     });
 
-    marker.addListener('click', function () {
+    marker.addListener('click', () => {
       hashHistory.push(`results/${place.id}`);
     });
 

@@ -9,7 +9,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.onLocationChange = this.onLocationChange.bind(this);
-    this.state = { location: { lat: 0, lng: 0 } };
+    this.state = { location: { lat: 37.786567, lng: -122.405303 } };
   }
 
   componentDidMount() {
