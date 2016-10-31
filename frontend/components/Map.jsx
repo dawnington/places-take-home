@@ -1,4 +1,5 @@
 import React from 'react';
+import hashHistory from 'react-router/lib/hashHistory';
 import PlaceStore from '../stores/PlaceStore';
 
 class Map extends React.Component {
@@ -63,7 +64,9 @@ class Map extends React.Component {
     marker.addListener('click', function () {
       if (self.currMarker) {
         self.currMarker.infowindow.close();
+        // hashHistory.push('/');
       }
+      hashHistory.push(`results/${place.id}`);
       marker.infowindow.open(this.map, marker);
       self.currMarker = marker;
     });

@@ -122,3 +122,13 @@ input[type=text] {
 .focused {
   background: #f2f2f2;
 }
+
+.open {
+  color: green;
+  font-weight: bold;
+}
+
+.closed {
+  color: red;
+  font-weight: bold;
+}

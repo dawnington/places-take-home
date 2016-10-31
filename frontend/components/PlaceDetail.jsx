@@ -7,7 +7,7 @@ function getPhoto(place) {
     return;
   }
 
-  return photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200})
+  return photos[0].getUrl({ 'maxWidth': 200, 'maxHeight': 200 });
 }
 
 function openStatus(place) {
@@ -16,10 +16,10 @@ function openStatus(place) {
   const open = place.opening_hours.open_now;
 
   if (open) {
-    return <p>Open Now</p>;
+    return <p className="open">Open Now</p>;
   }
 
-  return <p>Closed</p>;
+  return <p className="closed">Closed</p>;
 }
 
 function PlaceDetail(props) {

@@ -21484,6 +21484,10 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _hashHistory = __webpack_require__(200);
+	
+	var _hashHistory2 = _interopRequireDefault(_hashHistory);
+	
 	var _PlaceStore = __webpack_require__(261);
 	
 	var _PlaceStore2 = _interopRequireDefault(_PlaceStore);
@@ -21592,7 +21596,9 @@
 	      marker.addListener('click', function () {
 	        if (self.currMarker) {
 	          self.currMarker.infowindow.close();
+	          // hashHistory.push('/');
 	        }
+	        _hashHistory2.default.push('results/' + place.id);
 	        marker.infowindow.open(this.map, marker);
 	        self.currMarker = marker;
 	      });
@@ -44369,14 +44375,14 @@
 	  if (open) {
 	    return _react2.default.createElement(
 	      'p',
-	      null,
+	      { className: 'open' },
 	      'Open Now'
 	    );
 	  }
 	
 	  return _react2.default.createElement(
 	    'p',
-	    null,
+	    { className: 'closed' },
 	    'Closed'
 	  );
 	}
