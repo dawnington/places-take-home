@@ -25,13 +25,6 @@ class App extends React.Component {
     this.setState({ location: MapStore.location() });
   }
 
-  content() {
-    if (MapStore.hasLocation()) {
-      return <Map location={this.state.location} />;
-    }
-    return <h3>Searching location...</h3>;
-  }
-
   render() {
     return (
       <div className="content-main">
@@ -41,7 +34,7 @@ class App extends React.Component {
         </section>
         {this.props.children}
         <section className="content-right">
-          {this.content()}
+          <Map location={this.state.location} />
         </section>
       </div>
     );

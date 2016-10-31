@@ -21518,14 +21518,7 @@
 	    value: function componentDidMount() {
 	      this.listener = _PlaceStore2.default.addListener(this.handleStoreChange);
 	      this.markers = [];
-	      var map = document.getElementById('map');
-	      var mapOptions = {
-	        center: { lat: this.props.location.lat, lng: this.props.location.lng },
-	        zoom: 13
-	      };
-	      this.map = new google.maps.Map(map, mapOptions);
-	      this.geocoder = new google.maps.Geocoder();
-	      window.service = new google.maps.places.PlacesService(this.map);
+	      this.createMap();
 	    }
 	  }, {
 	    key: 'componentWillUnmount',
@@ -21536,6 +21529,44 @@
 	    key: 'handleStoreChange',
 	    value: function handleStoreChange() {
 	      this.setState({ places: _PlaceStore2.default.all() });
+	    }
+	  }, {
+	    key: 'createMap',
+	    value: function createMap() {
+	      var mapEl = document.getElementById('map');
+	      var mapOptions = {
+	        center: { lat: 37.786567, lng: -122.405303 },
+	        zoom: 13
+	      };
+	      var map = new google.maps.Map(mapEl, mapOptions);
+	      this.map = map;
+	      this.geocoder = new google.maps.Geocoder();
+	
+	      if (navigator.geolocation) {
+	        navigator.geolocation.getCurrentPosition(function (position) {
+	          var pos = {
+	            lat: position.coords.latitude,
+	            lng: position.coords.longitude
+	          };
+	
+	          var infoWindow = new google.maps.InfoWindow({ map: map });
+	          infoWindow.setPosition(pos);
+	          infoWindow.setContent('Location found.');
+	          map.setCenter(pos);
+	        }, function () {
+	          handleLocationError(true, infoWindow, map.getCenter());
+	        });
+	      } else {
+	        handleLocationError(false, infoWindow, map.getCenter());
+	      }
+	
+	      window.service = new google.maps.places.PlacesService(map);
+	    }
+	  }, {
+	    key: 'handleLocationError',
+	    value: function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+	      infoWindow.setPosition(pos);
+	      infoWindow.setContent(browserHasGeolocation ? 'Error: The Geolocation service failed.' : 'Error: Your browser doesn\'t support geolocation.');
 	    }
 	  }, {
 	    key: 'resetMarkers',
@@ -21596,10 +21627,9 @@
 	      marker.addListener('click', function () {
 	        if (self.currMarker) {
 	          self.currMarker.infowindow.close();
-	          // hashHistory.push('/');
 	        }
 	        _hashHistory2.default.push('results/' + place.id);
-	        marker.infowindow.open(this.map, marker);
+	        marker.infowindow.open(map, marker);
 	        self.currMarker = marker;
 	      });
 	
@@ -21690,18 +21720,6 @@
 	      this.setState({ location: _MapStore2.default.location() });
 	    }
 	  }, {
-	    key: 'content',
-	    value: function content() {
-	      if (_MapStore2.default.hasLocation()) {
-	        return _react2.default.createElement(_Map2.default, { location: this.state.location });
-	      }
-	      return _react2.default.createElement(
-	        'h3',
-	        null,
-	        'Searching location...'
-	      );
-	    }
-	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
@@ -21717,7 +21735,7 @@
 	        _react2.default.createElement(
 	          'section',
 	          { className: 'content-right' },
-	          this.content()
+	          _react2.default.createElement(_Map2.default, { location: this.state.location })
 	        )
 	      );
 	    }
