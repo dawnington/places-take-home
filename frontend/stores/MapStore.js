@@ -4,7 +4,7 @@ import MapConstants from '../constants/MapConstants';
 
 const MapStore = new Store(Dispatcher);
 
-let _location = { lat: 0, lng: 0 };
+let _location = { lat: 37.786567, lng: -122.405303 };
 
 function setLocation(location) {
   _location.lat = location.coords.latitude;
@@ -14,13 +14,6 @@ function setLocation(location) {
 
 MapStore.location = function () {
   return _location;
-};
-
-MapStore.hasLocation = function () {
-  if (_location.lat !== 0) {
-    return true;
-  }
-  return false;
 };
 
 MapStore.__onDispatch = function (payload) {

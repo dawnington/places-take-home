@@ -1,64 +1,70 @@
+/* global google */
+/* eslint-env browser */
+
 import React from 'react';
 import hashHistory from 'react-router/lib/hashHistory';
 import PlaceStore from '../stores/PlaceStore';
+import MapStore from '../stores/MapStore';
 
 class Map extends React.Component {
   constructor(props) {
     super(props);
-    this.handleStoreChange = this.handleStoreChange.bind(this);
-    this.state = { places: [] };
+    this.handlePlacesChange = this.handlePlacesChange.bind(this);
+    this.handleLocationChange = this.handleLocationChange.bind(this);
+    this.state = { places: [], location: { lat: 37.786567, lng: -122.405303 } };
   }
 
   componentDidMount() {
-    this.listener = PlaceStore.addListener(this.handleStoreChange);
+    this.placeListener = PlaceStore.addListener(this.handlePlacesChange);
+    this.mapListener = MapStore.addListener(this.handleLocationChange);
     this.markers = [];
     this.createMap();
   }
 
-  componentWillUnmount() {
-    this.listener.remove();
+  componentDidUpdate() {
+    this.resetMarkers();
   }
 
-  handleStoreChange() {
+  componentWillUnmount() {
+    this.placeListener.remove();
+    this.mapListener.remove();
+  }
+
+  handlePlacesChange() {
     this.setState({ places: PlaceStore.all() });
+  }
+
+  handleLocationChange() {
+    this.setState({ location: MapStore.location() }, () => {
+      this.createMap();
+      this.addLocationWindow();
+    });
   }
 
   createMap() {
     const mapEl = document.getElementById('map');
+    const location = this.state.location;
     const mapOptions = {
-      center: { lat: 37.786567, lng: -122.405303 },
+      center: { lat: location.lat, lng: location.lng },
       zoom: 13,
     };
     var map = new google.maps.Map(mapEl, mapOptions);
     this.map = map;
     this.geocoder = new google.maps.Geocoder();
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(function(position) {
-        var pos = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-
-        const infoWindow = new google.maps.InfoWindow({map: map});
-        infoWindow.setPosition(pos);
-        infoWindow.setContent('Location found.');
-        map.setCenter(pos);
-      }, function () {
-        handleLocationError(true, infoWindow, map.getCenter());
-      });
-    } else {
-      handleLocationError(false, infoWindow, map.getCenter());
-    }
-
     window.service = new google.maps.places.PlacesService(map);
   }
 
-  handleLocationError(browserHasGeolocation, infoWindow, pos) {
+  addLocationWindow() {
+    const location = this.state.location;
+    const pos = {
+      lat: location.lat,
+      lng: location.lng,
+    };
+
+    const infoWindow = new google.maps.InfoWindow({ map: this.map });
     infoWindow.setPosition(pos);
-    infoWindow.setContent(browserHasGeolocation ?
-      'Error: The Geolocation service failed.' :
-      'Error: Your browser doesn\'t support geolocation.');
+    infoWindow.setContent('Location found.');
   }
 
   resetMarkers() {
@@ -93,19 +99,13 @@ class Map extends React.Component {
     });
 
     marker.addListener('click', function () {
-      if (self.currMarker) {
-        self.currMarker.infowindow.close();
-      }
       hashHistory.push(`results/${place.id}`);
-      marker.infowindow.open(map, marker);
-      self.currMarker = marker;
     });
 
     this.markers.push(marker);
   }
 
   render() {
-    this.resetMarkers();
     return (
       <div id="map" />
     );

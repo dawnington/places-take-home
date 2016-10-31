@@ -21492,13 +21492,18 @@
 	
 	var _PlaceStore2 = _interopRequireDefault(_PlaceStore);
 	
+	var _MapStore = __webpack_require__(174);
+	
+	var _MapStore2 = _interopRequireDefault(_MapStore);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* global google */
+	/* eslint-env browser */
 	
 	var Map = function (_React$Component) {
 	  _inherits(Map, _React$Component);
@@ -21508,65 +21513,73 @@
 	
 	    var _this = _possibleConstructorReturn(this, (Map.__proto__ || Object.getPrototypeOf(Map)).call(this, props));
 	
-	    _this.handleStoreChange = _this.handleStoreChange.bind(_this);
-	    _this.state = { places: [] };
+	    _this.handlePlacesChange = _this.handlePlacesChange.bind(_this);
+	    _this.handleLocationChange = _this.handleLocationChange.bind(_this);
+	    _this.state = { places: [], location: { lat: 37.786567, lng: -122.405303 } };
 	    return _this;
 	  }
 	
 	  _createClass(Map, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      this.listener = _PlaceStore2.default.addListener(this.handleStoreChange);
+	      this.placeListener = _PlaceStore2.default.addListener(this.handlePlacesChange);
+	      this.mapListener = _MapStore2.default.addListener(this.handleLocationChange);
 	      this.markers = [];
 	      this.createMap();
 	    }
 	  }, {
-	    key: 'componentWillUnmount',
-	    value: function componentWillUnmount() {
-	      this.listener.remove();
+	    key: 'componentDidUpdate',
+	    value: function componentDidUpdate() {
+	      this.resetMarkers();
 	    }
 	  }, {
-	    key: 'handleStoreChange',
-	    value: function handleStoreChange() {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      this.placeListener.remove();
+	      this.mapListener.remove();
+	    }
+	  }, {
+	    key: 'handlePlacesChange',
+	    value: function handlePlacesChange() {
 	      this.setState({ places: _PlaceStore2.default.all() });
+	    }
+	  }, {
+	    key: 'handleLocationChange',
+	    value: function handleLocationChange() {
+	      var _this2 = this;
+	
+	      this.setState({ location: _MapStore2.default.location() }, function () {
+	        _this2.createMap();
+	        _this2.addLocationWindow();
+	      });
 	    }
 	  }, {
 	    key: 'createMap',
 	    value: function createMap() {
 	      var mapEl = document.getElementById('map');
+	      var location = this.state.location;
 	      var mapOptions = {
-	        center: { lat: 37.786567, lng: -122.405303 },
+	        center: { lat: location.lat, lng: location.lng },
 	        zoom: 13
 	      };
 	      var map = new google.maps.Map(mapEl, mapOptions);
 	      this.map = map;
 	      this.geocoder = new google.maps.Geocoder();
 	
-	      if (navigator.geolocation) {
-	        navigator.geolocation.getCurrentPosition(function (position) {
-	          var pos = {
-	            lat: position.coords.latitude,
-	            lng: position.coords.longitude
-	          };
-	
-	          var infoWindow = new google.maps.InfoWindow({ map: map });
-	          infoWindow.setPosition(pos);
-	          infoWindow.setContent('Location found.');
-	          map.setCenter(pos);
-	        }, function () {
-	          handleLocationError(true, infoWindow, map.getCenter());
-	        });
-	      } else {
-	        handleLocationError(false, infoWindow, map.getCenter());
-	      }
-	
 	      window.service = new google.maps.places.PlacesService(map);
 	    }
 	  }, {
-	    key: 'handleLocationError',
-	    value: function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+	    key: 'addLocationWindow',
+	    value: function addLocationWindow() {
+	      var location = this.state.location;
+	      var pos = {
+	        lat: location.lat,
+	        lng: location.lng
+	      };
+	
+	      var infoWindow = new google.maps.InfoWindow({ map: this.map });
 	      infoWindow.setPosition(pos);
-	      infoWindow.setContent(browserHasGeolocation ? 'Error: The Geolocation service failed.' : 'Error: Your browser doesn\'t support geolocation.');
+	      infoWindow.setContent('Location found.');
 	    }
 	  }, {
 	    key: 'resetMarkers',
@@ -21625,12 +21638,7 @@
 	      });
 	
 	      marker.addListener('click', function () {
-	        if (self.currMarker) {
-	          self.currMarker.infowindow.close();
-	        }
 	        _hashHistory2.default.push('results/' + place.id);
-	        marker.infowindow.open(map, marker);
-	        self.currMarker = marker;
 	      });
 	
 	      this.markers.push(marker);
@@ -21638,7 +21646,6 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      this.resetMarkers();
 	      return _react2.default.createElement('div', { id: 'map' });
 	    }
 	  }]);
@@ -21770,7 +21777,7 @@
 	
 	var MapStore = new _utils.Store(_Dispatcher2.default);
 	
-	var _location = { lat: 0, lng: 0 };
+	var _location = { lat: 37.786567, lng: -122.405303 };
 	
 	function setLocation(location) {
 	  _location.lat = location.coords.latitude;
@@ -21780,13 +21787,6 @@
 	
 	MapStore.location = function () {
 	  return _location;
-	};
-	
-	MapStore.hasLocation = function () {
-	  if (_location.lat !== 0) {
-	    return true;
-	  }
-	  return false;
 	};
 	
 	MapStore.__onDispatch = function (payload) {
