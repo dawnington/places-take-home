@@ -7,11 +7,11 @@ function getPhoto(place) {
     return;
   }
 
-  return photos[0].getUrl({ 'maxWidth': 200, 'maxHeight': 200 });
+  return photos[0].getUrl({ maxWidth: 200, maxHeight: 200 });
 }
 
 function openStatus(place) {
-  if (!place.opening_hours) { return; }
+  if (!place.opening_hours) { return ''; }
 
   const open = place.opening_hours.open_now;
 
@@ -29,7 +29,7 @@ function PlaceDetail(props) {
 
   return (
     <div className="detail">
-      <img src={photoURL} alt="" />
+      <img src={photoURL} alt="" className="place-photo" />
       <h4>{place.name}</h4>
       {status}
       {place.formatted_address}

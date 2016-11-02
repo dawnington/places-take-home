@@ -1,5 +1,5 @@
 const MapConstants = {
-  LOCATION_RECEIVED: 'LOCATION_RECEIVED',
+  LOCATION_UPDATED: 'LOCATION_UPDATED',
 };
 
 export default MapConstants;

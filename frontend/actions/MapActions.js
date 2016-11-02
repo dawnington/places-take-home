@@ -1,16 +1,10 @@
 import Dispatcher from '../dispatcher/Dispatcher';
-import getLocation from '../util/MapUtil';
 import MapConstants from '../constants/MapConstants';
 
-function receiveLocation(location) {
+function updateLocation() {
   Dispatcher.dispatch({
-    actionType: MapConstants.LOCATION_RECEIVED,
-    location,
+    actionType: MapConstants.LOCATION_UPDATED,
   });
 }
 
-function fetchLocation() {
-  getLocation(receiveLocation);
-}
-
-export { fetchLocation };
+export { updateLocation };

@@ -21452,9 +21452,7 @@
 	
 	var _PlaceStore2 = _interopRequireDefault(_PlaceStore);
 	
-	var _MapStore = __webpack_require__(174);
-	
-	var _MapStore2 = _interopRequireDefault(_MapStore);
+	var _MapActions = __webpack_require__(192);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -21474,8 +21472,7 @@
 	    var _this = _possibleConstructorReturn(this, (Map.__proto__ || Object.getPrototypeOf(Map)).call(this, props));
 	
 	    _this.handlePlacesChange = _this.handlePlacesChange.bind(_this);
-	    _this.handleLocationChange = _this.handleLocationChange.bind(_this);
-	    _this.state = { places: [], location: { lat: 37.786567, lng: -122.405303 } };
+	    _this.state = { places: [] };
 	    return _this;
 	  }
 	
@@ -21483,65 +21480,36 @@
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      this.placeListener = _PlaceStore2.default.addListener(this.handlePlacesChange);
-	      this.mapListener = _MapStore2.default.addListener(this.handleLocationChange);
 	      this.markers = [];
 	      this.createMap();
-	    }
-	  }, {
-	    key: 'componentDidUpdate',
-	    value: function componentDidUpdate() {
-	      this.resetMarkers();
 	    }
 	  }, {
 	    key: 'componentWillUnmount',
 	    value: function componentWillUnmount() {
 	      this.placeListener.remove();
-	      this.mapListener.remove();
 	    }
 	  }, {
 	    key: 'handlePlacesChange',
 	    value: function handlePlacesChange() {
-	      this.setState({ places: _PlaceStore2.default.all() });
-	    }
-	  }, {
-	    key: 'handleLocationChange',
-	    value: function handleLocationChange() {
-	      var _this2 = this;
-	
-	      this.setState({ location: _MapStore2.default.location() }, function () {
-	        _this2.createMap();
-	        _this2.addLocationWindow();
-	      });
+	      this.setState({ places: _PlaceStore2.default.all() }, this.resetMarkers);
 	    }
 	  }, {
 	    key: 'createMap',
 	    value: function createMap() {
 	      var mapEl = document.getElementById('map');
-	      var location = this.state.location;
+	      var location = { lat: 37.786567, lng: -122.405303 };
 	      var mapOptions = {
 	        center: { lat: location.lat, lng: location.lng },
 	        zoom: 13
 	      };
-	      this.map = new google.maps.Map(mapEl, mapOptions);
+	      window.map = new google.maps.Map(mapEl, mapOptions);
 	      this.geocoder = new google.maps.Geocoder();
 	
-	      window.service = new google.maps.places.PlacesService(this.map);
-	    }
-	  }, {
-	    key: 'addLocationWindow',
-	    value: function addLocationWindow() {
-	      var location = this.state.location;
-	      var pos = {
-	        lat: location.lat,
-	        lng: location.lng
-	      };
+	      window.map.addListener('idle', function () {
+	        (0, _MapActions.updateLocation)();
+	      });
 	
-	      var infoWindow = new google.maps.InfoWindow({ map: this.map });
-	      infoWindow.setPosition(pos);
-	      infoWindow.setContent('Location found.');
-	      setTimeout(function () {
-	        infoWindow.close();
-	      }, 3000);
+	      window.service = new google.maps.places.PlacesService(window.map);
 	    }
 	  }, {
 	    key: 'resetMarkers',
@@ -21591,7 +21559,7 @@
 	      var marker = new google.maps.Marker({
 	        position: { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() },
 	        label: labels[labelIdx % labels.length],
-	        map: this.map
+	        map: window.map
 	      });
 	
 	      marker.infowindow = new google.maps.InfoWindow({
@@ -21626,8 +21594,6 @@
 	  value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
 	var _react = __webpack_require__(1);
 	
 	var _react2 = _interopRequireDefault(_react);
@@ -21644,73 +21610,31 @@
 	
 	var _PlaceIndex2 = _interopRequireDefault(_PlaceIndex);
 	
-	var _MapStore = __webpack_require__(174);
-	
-	var _MapStore2 = _interopRequireDefault(_MapStore);
-	
-	var _MapActions = __webpack_require__(192);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var App = function (_React$Component) {
-	  _inherits(App, _React$Component);
-	
-	  function App(props) {
-	    _classCallCheck(this, App);
-	
-	    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
-	
-	    _this.onLocationChange = _this.onLocationChange.bind(_this);
-	    _this.state = { location: { lat: 37.786567, lng: -122.405303 } };
-	    return _this;
-	  }
-	
-	  _createClass(App, [{
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
-	      this.listener = _MapStore2.default.addListener(this.onLocationChange);
-	      (0, _MapActions.fetchLocation)();
-	    }
-	  }, {
-	    key: 'componentWillUnmount',
-	    value: function componentWillUnmount() {
-	      this.listener.remove();
-	    }
-	  }, {
-	    key: 'onLocationChange',
-	    value: function onLocationChange() {
-	      this.setState({ location: _MapStore2.default.location() });
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'content-main' },
-	        _react2.default.createElement(
-	          'section',
-	          { className: 'content-left' },
-	          _react2.default.createElement(_SearchBar2.default, { location: this.state.location }),
-	          _react2.default.createElement(_PlaceIndex2.default, null)
-	        ),
-	        this.props.children,
-	        _react2.default.createElement(
-	          'section',
-	          { className: 'content-right' },
-	          _react2.default.createElement(_Map2.default, { location: this.state.location })
-	        )
-	      );
-	    }
-	  }]);
-	
-	  return App;
-	}(_react2.default.Component);
+	function App(props) {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: 'content-main' },
+	    _react2.default.createElement(
+	      'section',
+	      { className: 'content-left' },
+	      _react2.default.createElement(
+	        'h1',
+	        null,
+	        'Places'
+	      ),
+	      _react2.default.createElement(_SearchBar2.default, null),
+	      _react2.default.createElement(_PlaceIndex2.default, null)
+	    ),
+	    props.children,
+	    _react2.default.createElement(
+	      'section',
+	      { className: 'content-right' },
+	      _react2.default.createElement(_Map2.default, null)
+	    )
+	  );
+	}
 	
 	exports.default = App;
 
@@ -21738,22 +21662,14 @@
 	
 	var MapStore = new _utils.Store(_Dispatcher2.default);
 	
-	var _location = { lat: 37.786567, lng: -122.405303 };
-	
-	function setLocation(location) {
-	  _location.lat = location.coords.latitude;
-	  _location.lng = location.coords.longitude;
+	function updateLocation(location) {
 	  MapStore.__emitChange();
 	}
 	
-	MapStore.location = function () {
-	  return _location;
-	};
-	
 	MapStore.__onDispatch = function (payload) {
 	  switch (payload.actionType) {
-	    case _MapConstants2.default.LOCATION_RECEIVED:
-	      setLocation(payload.location);
+	    case _MapConstants2.default.LOCATION_UPDATED:
+	      updateLocation();
 	      break;
 	    default:
 	      break;
@@ -23343,7 +23259,7 @@
 	  value: true
 	});
 	var MapConstants = {
-	  LOCATION_RECEIVED: 'LOCATION_RECEIVED'
+	  LOCATION_UPDATED: 'LOCATION_UPDATED'
 	};
 	
 	exports.default = MapConstants;
@@ -23357,15 +23273,11 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.fetchLocation = undefined;
+	exports.updateLocation = undefined;
 	
 	var _Dispatcher = __webpack_require__(188);
 	
 	var _Dispatcher2 = _interopRequireDefault(_Dispatcher);
-	
-	var _MapUtil = __webpack_require__(193);
-	
-	var _MapUtil2 = _interopRequireDefault(_MapUtil);
 	
 	var _MapConstants = __webpack_require__(191);
 	
@@ -23373,41 +23285,16 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	function receiveLocation(location) {
+	function updateLocation() {
 	  _Dispatcher2.default.dispatch({
-	    actionType: _MapConstants2.default.LOCATION_RECEIVED,
-	    location: location
+	    actionType: _MapConstants2.default.LOCATION_UPDATED
 	  });
 	}
 	
-	function fetchLocation() {
-	  (0, _MapUtil2.default)(receiveLocation);
-	}
-	
-	exports.fetchLocation = fetchLocation;
+	exports.updateLocation = updateLocation;
 
 /***/ },
-/* 193 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	function getLocation(callback) {
-	  if ('geolocation' in navigator) {
-	    navigator.geolocation.getCurrentPosition(function (position) {
-	      callback(position);
-	    });
-	  } else {
-	    console.log('geolocation not available');
-	  }
-	}
-	
-	exports.default = getLocation;
-
-/***/ },
+/* 193 */,
 /* 194 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -23429,13 +23316,18 @@
 	
 	var _ResultActions = __webpack_require__(197);
 	
+	var _MapStore = __webpack_require__(174);
+	
+	var _MapStore2 = _interopRequireDefault(_MapStore);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* global google */
+	/* eslint-env browser */
 	
 	var SearchBar = function (_React$Component) {
 	  _inherits(SearchBar, _React$Component);
@@ -23446,7 +23338,8 @@
 	    var _this = _possibleConstructorReturn(this, (SearchBar.__proto__ || Object.getPrototypeOf(SearchBar)).call(this, props));
 	
 	    _this.handleInputChange = _this.handleInputChange.bind(_this);
-	    _this.updateResults = _this.updateResults.bind(_this);
+	    _this.handleMapChange = _this.handleMapChange.bind(_this);
+	    _this.fetchResults = _this.fetchResults.bind(_this);
 	    _this.state = { query: '' };
 	    return _this;
 	  }
@@ -23454,31 +23347,42 @@
 	  _createClass(SearchBar, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
+	      var _this2 = this;
+	
+	      this.mapListener = _MapStore2.default.addListener(this.handleMapChange);
 	      var input = document.getElementById('searchBar');
 	
-	      var lat = this.props.location.lat;
-	      var lng = this.props.location.lng;
+	      var bounds = new google.maps.LatLngBounds(new google.maps.LatLng(37.75637564915318, -122.49568271496582), new google.maps.LatLng(37.81674602158375, -122.31492328503418));
 	
-	      var bounds = new google.maps.LatLngBounds(new google.maps.LatLng(lat - .01, lng - .01), new google.maps.LatLng(lat + .01, lng + .01));
-	
-	      var searchBox = new google.maps.places.SearchBox(input, { bounds: bounds });
+	      this.searchBox = new google.maps.places.SearchBox(input, { bounds: bounds });
+	      this.searchBox.addListener('places_changed', function () {
+	        (0, _ResultActions.addResults)(_this2.searchBox.getPlaces());
+	      });
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      this.mapListener.remove();
+	    }
+	  }, {
+	    key: 'handleMapChange',
+	    value: function handleMapChange() {
+	      var bounds = window.map.getBounds();
+	      this.searchBox.setBounds(bounds);
+	      this.fetchResults();
 	    }
 	  }, {
 	    key: 'handleInputChange',
 	    value: function handleInputChange(e) {
-	      this.setState({
-	        query: e.target.value
-	      }, this.updateResults);
+	      this.setState({ query: e.target.value }, this.fetchResults);
 	      _hashHistory2.default.push('/');
 	    }
 	  }, {
-	    key: 'updateResults',
-	    value: function updateResults() {
-	      var loc = new google.maps.LatLng(this.props.location.lat, this.props.location.lng);
+	    key: 'fetchResults',
+	    value: function fetchResults() {
 	      var request = {
 	        query: this.state.query,
-	        location: loc,
-	        radius: '150'
+	        bounds: window.map.getBounds()
 	      };
 	
 	      if (this.state.query !== '') {
@@ -44233,73 +44137,7 @@
 
 
 /***/ },
-/* 242 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _react = __webpack_require__(1);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _hashHistory = __webpack_require__(200);
-	
-	var _hashHistory2 = _interopRequireDefault(_hashHistory);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var IndexItem = function (_React$Component) {
-	  _inherits(IndexItem, _React$Component);
-	
-	  function IndexItem(props) {
-	    _classCallCheck(this, IndexItem);
-	
-	    var _this = _possibleConstructorReturn(this, (IndexItem.__proto__ || Object.getPrototypeOf(IndexItem)).call(this, props));
-	
-	    _this.handleClick = _this.handleClick.bind(_this);
-	    return _this;
-	  }
-	
-	  _createClass(IndexItem, [{
-	    key: 'handleClick',
-	    value: function handleClick() {
-	      _hashHistory2.default.push('results/' + this.props.place.id);
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'index-detail', onClick: this.handleClick },
-	        _react2.default.createElement(
-	          'h4',
-	          null,
-	          this.props.label,
-	          '. ',
-	          this.props.place.name
-	        )
-	      );
-	    }
-	  }]);
-	
-	  return IndexItem;
-	}(_react2.default.Component);
-	
-	exports.default = IndexItem;
-
-/***/ },
+/* 242 */,
 /* 243 */,
 /* 244 */,
 /* 245 */,
@@ -44341,12 +44179,12 @@
 	    return;
 	  }
 	
-	  return photos[0].getUrl({ 'maxWidth': 200, 'maxHeight': 200 });
+	  return photos[0].getUrl({ maxWidth: 200, maxHeight: 200 });
 	}
 	
 	function openStatus(place) {
 	  if (!place.opening_hours) {
-	    return;
+	    return '';
 	  }
 	
 	  var open = place.opening_hours.open_now;
@@ -44374,7 +44212,7 @@
 	  return _react2.default.createElement(
 	    'div',
 	    { className: 'detail' },
-	    _react2.default.createElement('img', { src: photoURL, alt: '' }),
+	    _react2.default.createElement('img', { src: photoURL, alt: '', className: 'place-photo' }),
 	    _react2.default.createElement(
 	      'h4',
 	      null,
@@ -44403,13 +44241,13 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _hashHistory = __webpack_require__(200);
+	
+	var _hashHistory2 = _interopRequireDefault(_hashHistory);
+	
 	var _PlaceStore = __webpack_require__(261);
 	
 	var _PlaceStore2 = _interopRequireDefault(_PlaceStore);
-	
-	var _IndexItem = __webpack_require__(242);
-	
-	var _IndexItem2 = _interopRequireDefault(_IndexItem);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -44448,19 +44286,36 @@
 	      this.setState({ places: _PlaceStore2.default.all() });
 	    }
 	  }, {
+	    key: 'handleClick',
+	    value: function handleClick(id) {
+	      _hashHistory2.default.push('results/' + id);
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
+	      var _this2 = this;
+	
 	      var labelIndex = 0;
 	      var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'index' },
-	        this.state.places.map(function (place) {
-	          return _react2.default.createElement(_IndexItem2.default, {
-	            key: place.id,
-	            place: place,
-	            label: labels[labelIndex++ % labels.length]
-	          });
+	        this.state.places.map(function (place, i) {
+	          return _react2.default.createElement(
+	            'div',
+	            {
+	              className: 'index-detail',
+	              key: i,
+	              onClick: _this2.handleClick.bind(_this2, place.id)
+	            },
+	            _react2.default.createElement(
+	              'h4',
+	              null,
+	              labels[labelIndex++ % labels.length],
+	              '. ',
+	              place.name
+	            )
+	          );
 	        })
 	      );
 	    }

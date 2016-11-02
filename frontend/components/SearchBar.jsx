@@ -1,42 +1,54 @@
+/* global google */
+/* eslint-env browser */
+
 import React from 'react';
 import hashHistory from 'react-router/lib/hashHistory';
 import { addResults } from '../actions/ResultActions';
+import MapStore from '../stores/MapStore';
 
-class SearchBar extends React.Component {
+export default class SearchBar extends React.Component {
   constructor(props) {
     super(props);
     this.handleInputChange = this.handleInputChange.bind(this);
-    this.updateResults = this.updateResults.bind(this);
+    this.handleMapChange = this.handleMapChange.bind(this);
+    this.fetchResults = this.fetchResults.bind(this);
     this.state = { query: '' };
   }
 
   componentDidMount() {
+    this.mapListener = MapStore.addListener(this.handleMapChange);
     const input = document.getElementById('searchBar');
 
-    const lat = this.props.location.lat;
-    const lng = this.props.location.lng;
-
     const bounds = new google.maps.LatLngBounds(
-      new google.maps.LatLng(lat - .01, lng - .01),
-      new google.maps.LatLng(lat + .01, lng + .01)
+      new google.maps.LatLng(37.75637564915318, -122.49568271496582),
+      new google.maps.LatLng(37.81674602158375, -122.31492328503418)
     );
 
-    const searchBox = new google.maps.places.SearchBox(input, { bounds });
+    this.searchBox = new google.maps.places.SearchBox(input, { bounds });
+    this.searchBox.addListener('places_changed', () => {
+      addResults(this.searchBox.getPlaces());
+    });
+  }
+
+  componentWillUnmount() {
+    this.mapListener.remove();
+  }
+
+  handleMapChange() {
+    const bounds = window.map.getBounds();
+    this.searchBox.setBounds(bounds);
+    this.fetchResults();
   }
 
   handleInputChange(e) {
-    this.setState({
-      query: e.target.value,
-    }, this.updateResults);
+    this.setState({ query: e.target.value }, this.fetchResults);
     hashHistory.push('/');
   }
 
-  updateResults() {
-    const loc = new google.maps.LatLng(this.props.location.lat, this.props.location.lng);
+  fetchResults() {
     const request = {
       query: this.state.query,
-      location: loc,
-      radius: '150',
+      bounds: window.map.getBounds(),
     };
 
     if (this.state.query !== '') {
@@ -61,5 +73,3 @@ class SearchBar extends React.Component {
     );
   }
 }
-
-export default SearchBar;

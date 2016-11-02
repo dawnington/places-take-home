@@ -4,69 +4,44 @@
 import React from 'react';
 import hashHistory from 'react-router/lib/hashHistory';
 import PlaceStore from '../stores/PlaceStore';
-import MapStore from '../stores/MapStore';
+import { updateLocation } from '../actions/MapActions';
 
 class Map extends React.Component {
   constructor(props) {
     super(props);
     this.handlePlacesChange = this.handlePlacesChange.bind(this);
-    this.handleLocationChange = this.handleLocationChange.bind(this);
-    this.state = { places: [], location: { lat: 37.786567, lng: -122.405303 } };
+    this.state = { places: [] };
   }
 
   componentDidMount() {
     this.placeListener = PlaceStore.addListener(this.handlePlacesChange);
-    this.mapListener = MapStore.addListener(this.handleLocationChange);
     this.markers = [];
     this.createMap();
   }
 
-  componentDidUpdate() {
-    this.resetMarkers();
-  }
-
   componentWillUnmount() {
     this.placeListener.remove();
-    this.mapListener.remove();
   }
 
   handlePlacesChange() {
-    this.setState({ places: PlaceStore.all() });
-  }
-
-  handleLocationChange() {
-    this.setState({ location: MapStore.location() }, () => {
-      this.createMap();
-      this.addLocationWindow();
-    });
+    this.setState({ places: PlaceStore.all() }, this.resetMarkers);
   }
 
   createMap() {
     const mapEl = document.getElementById('map');
-    const location = this.state.location;
+    const location = { lat: 37.786567, lng: -122.405303 };
     const mapOptions = {
       center: { lat: location.lat, lng: location.lng },
       zoom: 13,
     };
-    this.map = new google.maps.Map(mapEl, mapOptions);
+    window.map = new google.maps.Map(mapEl, mapOptions);
     this.geocoder = new google.maps.Geocoder();
 
-    window.service = new google.maps.places.PlacesService(this.map);
-  }
+    window.map.addListener('idle', () => {
+      updateLocation();
+    });
 
-  addLocationWindow() {
-    const location = this.state.location;
-    const pos = {
-      lat: location.lat,
-      lng: location.lng,
-    };
-
-    const infoWindow = new google.maps.InfoWindow({ map: this.map });
-    infoWindow.setPosition(pos);
-    infoWindow.setContent('Location found.');
-    setTimeout(() => {
-      infoWindow.close();
-    }, 3000);
+    window.service = new google.maps.places.PlacesService(window.map);
   }
 
   resetMarkers() {
@@ -92,7 +67,7 @@ class Map extends React.Component {
     const marker = new google.maps.Marker({
       position: { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() },
       label: labels[labelIdx % labels.length],
-      map: this.map,
+      map: window.map,
     });
 
     marker.infowindow = new google.maps.InfoWindow({

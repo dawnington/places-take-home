@@ -1,6 +1,6 @@
 import React from 'react';
+import hashHistory from 'react-router/lib/hashHistory';
 import PlaceStore from '../stores/PlaceStore';
-import IndexItem from './IndexItem';
 
 class PlaceIndex extends React.Component {
   constructor(props) {
@@ -21,18 +21,24 @@ class PlaceIndex extends React.Component {
     this.setState({ places: PlaceStore.all() });
   }
 
+  handleClick(id) {
+    hashHistory.push(`results/${id}`);
+  }
+
   render() {
     let labelIndex = 0;
     const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     return (
       <div className="index">
         {
-          this.state.places.map(place =>
-            <IndexItem
-              key={place.id}
-              place={place}
-              label={labels[labelIndex++ % labels.length]}
-            />
+          this.state.places.map((place, i) =>
+            <div
+              className="index-detail"
+              key={i}
+              onClick={this.handleClick.bind(this, place.id)}
+            >
+              <h4>{labels[labelIndex++ % labels.length]}. {place.name}</h4>
+            </div>
           )
         }
       </div>
